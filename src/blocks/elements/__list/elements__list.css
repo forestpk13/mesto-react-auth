@@ -1,0 +1,12 @@
+.elements__list {
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  display: -ms-grid;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 282px);
+  gap: 20px 17px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
