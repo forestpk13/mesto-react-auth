@@ -1,4 +1,5 @@
 import React from 'react';
+import { Routes, Route, Navigate} from 'react-router';
 import { Header } from './Header.js';
 import { Main } from './Main.js';
 import { Footer } from './Footer.js';
@@ -9,6 +10,9 @@ import { UserContext } from '../contexts/CurrentUserContext.js';
 import { api } from '../utils/Api.js';
 import { AddPlacePopup } from './AddPlacePopup.js';
 import { PopupWithConfirmation } from './PopupWithConfirmation.js';
+import { Login } from './Login.js';
+import { Register } from './Register.js';
+import { ProtectedRoute } from './ProtectedRoute.js';
 
 
 function App() {
@@ -23,6 +27,7 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [isLoadingScreenClosed, setIsLoadingScreenClosed] = React.useState(false);
+  const [loggedIn, setLoggedIn] = React.useState(false);
 
   function handleConfirmPopupOpen(card){
     setIsConfirmationPopupOpened(true);
@@ -148,15 +153,21 @@ function App() {
     <div className="page">
       <UserContext.Provider value={currentUser}>
         <Header />
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDelete ={handleConfirmPopupOpen}
-          cards={cards}
-          loadingScreenStatus={isLoadingScreenClosed}/>
+        <Routes>
+          <Route path="/sign-up" element={<Register/>}/>
+          <Route path="/sign-in" element={<Login/>}/>
+          <Route path="/" element={<ProtectedRoute
+            element={Main}
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete ={handleConfirmPopupOpen}
+            cards={cards}
+            loadingScreenStatus={isLoadingScreenClosed}
+            loggedIn={loggedIn}/>}/>
+        </Routes>
         <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpened}

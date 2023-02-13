@@ -1,0 +1,19 @@
+.form__submit-button_place_auth-screen {
+  background-color: #fff;
+  color: #000;
+  margin-top: 156px;
+}
+
+.form__button_place_auth-screen:hover {
+  opacity: .85;
+}
+
+.form__button_place_auth-screen:disabled {
+  background-color: transparent;
+  color: rgba(255, 255, 255, .5);
+  border: 1px solid rgba(255, 255, 255, .5);
+}
+
+.form__button_place_auth-screen:disabled:hover {
+  opacity: 1;
+}

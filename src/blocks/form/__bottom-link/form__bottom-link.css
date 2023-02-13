@@ -1,0 +1,22 @@
+.form__bottom-link {
+  text-decoration: none;
+  margin: 15px auto 0;
+  display: block;
+  color: #fff;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.22;
+  text-align: center;
+  cursor: pointer;
+}
+
+.form__bottom-link:hover {
+  opacity: 0.6;
+}
+
+@media screen and (max-width: 425px) {
+  .form__bottom-link {
+    margin: 20px 0 0;
+  }
+}
