@@ -1,0 +1,15 @@
+.header__auth {
+  display: flex;
+}
+
+@media screen and (max-width: 1024px) {
+  .header__auth{
+    margin-right: calc((100vw - 880px)/(1024 - 880) * (0 - 27) + 27px);
+  }
+}
+
+@media screen and (max-width: 880px) {
+  .header__auth{
+    margin-right: 27px;
+  }
+}

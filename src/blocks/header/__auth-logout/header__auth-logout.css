@@ -1,0 +1,18 @@
+.header__auth-logout {
+  margin-left: 24px;
+  padding: 0;
+  border: none;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.22;
+  text-align: right;
+  color: #A9A9A9;
+  background-color: black;
+}
+
+.header__auth-logout:hover {
+  cursor: pointer;
+  opacity: 0.6;
+}

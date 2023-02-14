@@ -1,0 +1,27 @@
+.header__link {
+  margin: 0;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height:1.22;
+  text-align: right;
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.header__link:hover {
+  opacity: 0.6;
+}
+
+@media screen and (max-width: 1024px) {
+  .header__link{
+    margin-right: calc((100vw - 880px)/(1024 - 880) * (0 - 27) + 27px);
+  }
+}
+
+@media screen and (max-width: 880px) {
+  .header__link{
+    margin-right: 27px;
+  }
+}

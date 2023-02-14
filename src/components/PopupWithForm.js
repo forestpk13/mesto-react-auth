@@ -8,7 +8,6 @@ export function PopupWithForm(props) {
           aria-label="Закрыть"
         />
         <form className="form"
-          id="profile"
           name={props.name}
           onSubmit={props.onSubmit}
         >

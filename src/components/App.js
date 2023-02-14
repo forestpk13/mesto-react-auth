@@ -27,7 +27,7 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [isLoadingScreenClosed, setIsLoadingScreenClosed] = React.useState(false);
-  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [loggedIn, setLoggedIn] = React.useState(true);
 
   function handleConfirmPopupOpen(card){
     setIsConfirmationPopupOpened(true);
@@ -152,7 +152,7 @@ function App() {
   return (
     <div className="page">
       <UserContext.Provider value={currentUser}>
-        <Header />
+        <Header loggedIn={loggedIn} userProfile={currentUser}/>
         <Routes>
           <Route path="/sign-up" element={<Register/>}/>
           <Route path="/sign-in" element={<Login/>}/>
