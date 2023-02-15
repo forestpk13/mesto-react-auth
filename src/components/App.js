@@ -1,13 +1,15 @@
 import React from 'react';
-import { Routes, Route, Navigate} from 'react-router';
+import { Routes, Route, useNavigate} from 'react-router';
 import { Header } from './Header.js';
 import { Main } from './Main.js';
 import { Footer } from './Footer.js';
 import { ImagePopup } from './ImagePopup.js';
 import { EditProfilePopup } from './EditProfilePopup.js';
 import { EditAvatarPopup } from './EditAvatarPopup.js';
+import { InfoTooltip } from './InfoTooltip.js';
 import { UserContext } from '../contexts/CurrentUserContext.js';
 import { api } from '../utils/Api.js';
+import * as auth from '../utils/auth/auth'
 import { AddPlacePopup } from './AddPlacePopup.js';
 import { PopupWithConfirmation } from './PopupWithConfirmation.js';
 import { Login } from './Login.js';
@@ -20,14 +22,19 @@ function App() {
   const [isEditProfilePopupOpened, setIsEditProfilePopupOpened] = React.useState(false);
   const [isEditAvatarPopupOpened, setIsEditAvatarPopupOpened] = React.useState(false);
   const [isAddPlacePopupOpened, setIsAddPlacePopupOpened] = React.useState(false);
-  const [isConfirmationPopupOpened, setIsConfirmationPopupOpened] = React.useState(false)
+  const [isConfirmationPopupOpened, setIsConfirmationPopupOpened] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
-  const [cardToDelete, setCardToDelete] = React.useState({})
+  const [cardToDelete, setCardToDelete] = React.useState({});
   const [isCardPopupOpened, setIsCardPopupOpened] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState({});
+  const [userProfile, setUserProfile] = React.useState('');
   const [cards, setCards] = React.useState([]);
   const [isLoadingScreenClosed, setIsLoadingScreenClosed] = React.useState(false);
-  const [loggedIn, setLoggedIn] = React.useState(true);
+  const [isInfoTooltipOpened, setIsInfoTooltipOpened] = React.useState(false);
+  const [isError, setIsError] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const navigate = useNavigate();
 
   function handleConfirmPopupOpen(card){
     setIsConfirmationPopupOpened(true);
@@ -85,6 +92,7 @@ function App() {
     setIsAddPlacePopupOpened(false);
     setIsCardPopupOpened(false);
     setIsConfirmationPopupOpened(false);
+    setIsInfoTooltipOpened(false);
     if (selectedCard.link) {
       setTimeout(() => setSelectedCard({}), 500); //не убираю картинку пока показывается анимация закрытия попапа
     }
@@ -129,6 +137,66 @@ function App() {
     }
   };
 
+  function onRegister({password, email}) {
+    auth
+      .register(password, email)
+      .then((res) => {
+        setLoggedIn(true);
+        setIsError(false);
+        setUserProfile(res.data.email);
+        navigate('/');
+        setIsInfoTooltipOpened(true);
+      })
+      .catch((err) => {
+        setErrorMessage(err.error);
+        setIsInfoTooltipOpened(true);
+        setIsError(true);
+      });
+  }
+
+  function onLogin({password, email}) {
+    auth
+    .login(password, email)
+    .then(() => {
+      setLoggedIn(true);
+      setIsError(false);
+      navigate('/');
+      setUserProfile(email);
+    })
+    .catch((err) => {
+      setErrorMessage(err.message);
+      setIsInfoTooltipOpened(true);
+      setIsError(true);
+    });
+  }
+
+  const tokenCheck = async () => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    if (token) {
+      try {
+        const res = await auth.getContent(token);
+        if (res.data) {
+          setLoggedIn(true);
+          setUserProfile(res.data.email);
+          navigate('/');
+        }
+      } catch (err) {
+        setLoggedIn(false);
+        navigate('/sign-in');
+      }
+    }
+  };
+
+  function tokenDelete() {
+    localStorage.removeItem('token');
+    setLoggedIn(false);
+  }
+
+  React.useEffect(() => {
+    tokenCheck();
+  }, []);
+
   React.useEffect(() => {
     Promise.all([api.getInitialCards(),api.getProfileData()])
       .then(([cards,user]) => {
@@ -142,31 +210,34 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    if (isAddPlacePopupOpened || isEditAvatarPopupOpened || isEditProfilePopupOpened || isCardPopupOpened || isConfirmationPopupOpened) {
+    if (isAddPlacePopupOpened || isEditAvatarPopupOpened || isEditProfilePopupOpened || isCardPopupOpened || isConfirmationPopupOpened || isInfoTooltipOpened) {
       document.addEventListener('keydown', closeByEsc);
     }
     return () => document.removeEventListener('keydown', closeByEsc);
-  }, [isAddPlacePopupOpened, isEditAvatarPopupOpened, isEditProfilePopupOpened, isCardPopupOpened, isConfirmationPopupOpened]);
+  }, [isAddPlacePopupOpened, isEditAvatarPopupOpened, isEditProfilePopupOpened, isCardPopupOpened, isConfirmationPopupOpened, isInfoTooltipOpened]);
 
 
   return (
     <div className="page">
       <UserContext.Provider value={currentUser}>
-        <Header loggedIn={loggedIn} userProfile={currentUser}/>
+        <Header loggedIn={loggedIn} userProfile={userProfile} onLogout={tokenDelete}/>
         <Routes>
-          <Route path="/sign-up" element={<Register/>}/>
-          <Route path="/sign-in" element={<Login/>}/>
-          <Route path="/" element={<ProtectedRoute
-            element={Main}
-            onEditProfile={handleEditProfileClick}
-            onAddPlace={handleAddPlaceClick}
-            onEditAvatar={handleEditAvatarClick}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete ={handleConfirmPopupOpen}
-            cards={cards}
-            loadingScreenStatus={isLoadingScreenClosed}
-            loggedIn={loggedIn}/>}/>
+          <Route path="/sign-up" element={<Register onRegister={onRegister}/>}/>
+          <Route path="/sign-in" element={<Login onLogin={onLogin}/>}/>
+          <Route path="/" element={
+            <ProtectedRoute
+              element={Main}
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onEditAvatar={handleEditAvatarClick}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDelete ={handleConfirmPopupOpen}
+              cards={cards}
+              loadingScreenStatus={isLoadingScreenClosed}
+              loggedIn={loggedIn}
+            />}
+          />
         </Routes>
         <Footer />
         <EditProfilePopup
@@ -193,6 +264,12 @@ function App() {
           isOpen={isConfirmationPopupOpened}
           onClose={handleClickOnPopup}
           onConfirmRemove={handleConfirmRemove}
+        />
+        <InfoTooltip
+          isOpen={isInfoTooltipOpened}
+          onClose={handleClickOnPopup}
+          isError={isError}
+          errorMessage={errorMessage}
         />
       </UserContext.Provider>
     </div>);

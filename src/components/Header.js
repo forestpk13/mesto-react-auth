@@ -2,7 +2,7 @@ import { Link, Routes, Route } from 'react-router-dom';
 import headerLogo from '../images/header-logo.svg';
 
 
-export function Header({loggedIn, userProfile}) {
+export function Header({loggedIn, userProfile, onLogout}) {
 
   return (
     <header className="header">
@@ -13,8 +13,8 @@ export function Header({loggedIn, userProfile}) {
       </Routes>
       {loggedIn &&
         <div className="header__auth">
-          <p className="header__auth-email">{userProfile.cohort}</p>
-          <button className="header__auth-logout">Выйти</button>
+          <p className="header__auth-email">{userProfile}</p>
+          <button className="header__auth-logout" onClick={onLogout}>Выйти</button>
         </div>}
     </header>
   );
