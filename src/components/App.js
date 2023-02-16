@@ -146,6 +146,7 @@ function App() {
         setUserProfile(res.data.email);
         navigate('/');
         setIsInfoTooltipOpened(true);
+        handleInitialLoading();
       })
       .catch((err) => {
         setErrorMessage(err.error);
@@ -162,6 +163,7 @@ function App() {
       setIsError(false);
       navigate('/');
       setUserProfile(email);
+      handleInitialLoading();
     })
     .catch((err) => {
       setErrorMessage(err.message);
@@ -180,6 +182,7 @@ function App() {
           setLoggedIn(true);
           setUserProfile(res.data.email);
           navigate('/');
+          handleInitialLoading();
         }
       } catch (err) {
         setLoggedIn(false);
@@ -188,25 +191,26 @@ function App() {
     }
   };
 
-  function tokenDelete() {
+  function onLogout() {
     localStorage.removeItem('token');
     setLoggedIn(false);
+    setUserProfile('');
+  }
+
+  function handleInitialLoading() {
+    Promise.all([api.getInitialCards(),api.getProfileData()])
+    .then(([cards,user]) => {
+      setCurrentUser(user);
+      setCards(cards);
+      setIsLoadingScreenClosed(true);
+    })
+    .catch(err => {
+      console.log(`Ошибка обращения к серверу ${err}`);
+    });
   }
 
   React.useEffect(() => {
     tokenCheck();
-  }, []);
-
-  React.useEffect(() => {
-    Promise.all([api.getInitialCards(),api.getProfileData()])
-      .then(([cards,user]) => {
-        setCurrentUser(user);
-        setCards(cards);
-        setIsLoadingScreenClosed(true);
-      })
-      .catch(err => {
-        console.log(`Ошибка обращения к серверу ${err}`);
-      });
   }, []);
 
   React.useEffect(() => {
@@ -220,11 +224,11 @@ function App() {
   return (
     <div className="page">
       <UserContext.Provider value={currentUser}>
-        <Header loggedIn={loggedIn} userProfile={userProfile} onLogout={tokenDelete}/>
+        <Header loggedIn={loggedIn} userProfile={userProfile} onLogout={onLogout}/>
         <Routes>
           <Route path="/sign-up" element={<Register onRegister={onRegister}/>}/>
           <Route path="/sign-in" element={<Login onLogin={onLogin}/>}/>
-          <Route path="/" element={
+          <Route exact path={"/" || "/react-mesto-auth"} element={
             <ProtectedRoute
               element={Main}
               onEditProfile={handleEditProfileClick}
