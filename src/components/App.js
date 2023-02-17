@@ -228,7 +228,7 @@ function App() {
         <Routes>
           <Route path="/sign-up" element={<Register onRegister={onRegister}/>}/>
           <Route path="/sign-in" element={<Login onLogin={onLogin}/>}/>
-          <Route exact path={"/" || "/react-mesto-auth"} element={
+          <Route exact path={"/"} element={
             <ProtectedRoute
               element={Main}
               onEditProfile={handleEditProfileClick}
